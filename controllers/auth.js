@@ -1,3 +1,4 @@
 exports.register = (req, res, next) => {
-  res.send('Register Route!');
+  console.log(req.body);
+  res.json('Register Route!');
 };
