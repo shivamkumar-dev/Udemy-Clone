@@ -20,6 +20,10 @@ app.use(express.json());
 app.use(morgan('dev'));
 
 // route
+app.get('/', (req, res, next) => {
+  res.send('Welcome to Edemy');
+});
+
 fs.readdirSync('./routes').map((r) =>
   app.use('/api/v1', require(`./routes/${r}`))
 );
