@@ -1,6 +1,10 @@
 const jwt = require('jsonwebtoken');
+const { nanoid } = require('nanoid');
+const ejs = require('ejs');
+const path = require('path');
 const User = require('./../models/user');
 const { hashPassword, comparePassword } = require('./../utils/auth');
+const sendEmail = require('./../utils/mailer');
 
 exports.register = async (req, res, next) => {
   try {
@@ -80,6 +84,7 @@ exports.login = async (req, res, next) => {
 exports.logout = async (req, res, next) => {
   try {
     res.clearCookie('token');
+    res.clearCookie('_csrf');
 
     res.status(200).json({
       status: true,
@@ -95,6 +100,55 @@ exports.currentUser = async (req, res, next) => {
     const user = await User.findById(req.user.id).select('-password');
 
     res.json(user);
+  } catch (err) {
+    console.log(err);
+  }
+};
+
+exports.forgotPassword = async (req, res, next) => {
+  try {
+    const { email } = req.body;
+    if (!email) return res.status(400).json({ message: 'Email is required.' });
+
+    const user = await User.findOne({ email });
+    if (!user) return res.status(404).json({ message: 'User not found.' });
+
+    const passwordResetCode = nanoid(6).toUpperCase();
+
+    const newUser = await User.findOneAndUpdate(
+      { email },
+      { passwordResetCode }
+    );
+
+    const message = await ejs.renderFile(
+      path.join(__dirname, './../views/email-templates/password-reset.ejs'),
+      { passwordResetCode }
+    );
+
+    try {
+      await sendEmail({
+        from: 'Edemy <no-reply@edemy.com>',
+        to: user.email,
+        subject: 'Reset password',
+        html: message,
+      });
+
+      res.json({
+        status: true,
+        message: 'Password reset code sent successfully.',
+      });
+    } catch (err) {
+      user.passwordResetCode = undefined;
+      await user.save({ validateBeforeSave: false });
+
+      return next(
+        res.status(500).json({
+          status: false,
+          message:
+            'There was an error sending the email. Please try again later.',
+        })
+      );
+    }
   } catch (err) {
     console.log(err);
   }

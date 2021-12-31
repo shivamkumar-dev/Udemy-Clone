@@ -33,11 +33,11 @@ fs.readdirSync('./routes').map((r) =>
   app.use('/api/v1', require(`./routes/${r}`))
 );
 
-app.use(csrfProtection);
+// app.use(csrfProtection);
 
-app.get('/api/v1/csrf-token', (req, res, next) => {
-  res.json({ csrfToken: req.csrfToken() });
-});
+// app.get('/api/v1/csrf-token', (req, res, next) => {
+//   res.json({ csrfToken: req.csrfToken() });
+// });
 
 // port
 const port = process.env.PORT || 8000;
