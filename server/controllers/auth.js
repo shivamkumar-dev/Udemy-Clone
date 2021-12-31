@@ -99,7 +99,12 @@ exports.currentUser = async (req, res, next) => {
   try {
     const user = await User.findById(req.user.id).select('-password');
 
-    res.json(user);
+    res.status(200).json({
+      status: true,
+      data: {
+        user,
+      },
+    });
   } catch (err) {
     console.log(err);
   }
@@ -115,10 +120,7 @@ exports.forgotPassword = async (req, res, next) => {
 
     const passwordResetCode = nanoid(6).toUpperCase();
 
-    const newUser = await User.findOneAndUpdate(
-      { email },
-      { passwordResetCode }
-    );
+    await User.findOneAndUpdate({ email }, { passwordResetCode });
 
     const message = await ejs.renderFile(
       path.join(__dirname, './../views/email-templates/password-reset.ejs'),
@@ -149,6 +151,40 @@ exports.forgotPassword = async (req, res, next) => {
         })
       );
     }
+  } catch (err) {
+    console.log(err);
+  }
+};
+
+exports.resetPassword = async (req, res, next) => {
+  try {
+    const { email, code, newPassword } = req.body;
+    if (!email) return res.status(400).json({ message: 'Email is required.' });
+
+    if (!code) return res.status(400).json({ message: 'Code is required.' });
+
+    if (!newPassword || newPassword.length < 6)
+      return res.status(400).json({
+        message:
+          'Password is required and Password must be at least 6 character long.',
+      });
+
+    const user = await User.findOne({ email });
+    if (!user) return res.status(404).json({ message: 'User not found.' });
+
+    if (code != user.passwordResetCode)
+      return res.status(404).json({ message: 'Invalid code.' });
+
+    const hashedPassword = await hashPassword(newPassword);
+
+    user.password = hashedPassword;
+    user.passwordResetCode = undefined;
+    await user.save();
+
+    res.json({
+      status: true,
+      message: 'Password updated successfully.',
+    });
   } catch (err) {
     console.log(err);
   }
