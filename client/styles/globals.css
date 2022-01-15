@@ -1,0 +1,36 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,400;0,700;1,400;1,700&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components{
+    .bg-rotated{
+        @apply absolute rotate-45 -top-1/2 -left-1/2 rounded-full -z-10;
+    }
+}
+
+:root{
+    overflow: hidden;
+}
+.bg-rotated{
+    width: 100vw;
+    height: 100vw;
+}
+
+.dark-color{
+    background-color: #3f3d56;
+    width: auto;
+    height: 100vh;
+    z-index: -100;
+}
+.bg--dark{
+    color: white;
+    background: #0F2027;  /* fallback for old browsers */
+    background: -webkit-linear-gradient(to right, #2C5364, #203A43, #0F2027);  /* Chrome 10-25, Safari 5.1-6 */
+    background: linear-gradient(to right, #2C5364, #203A43, #0F2027); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+}
+
+.demo-icons{
+    width: 8rem;
+    height: 8rem;
+}
