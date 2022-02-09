@@ -23,14 +23,14 @@ exports.register = asyncHandler(async (req, res, next) => {
       )
     );
 
-  const user = await User.findOne({ email });
+  const user = await User.findOne({ email : email.toLowerCase().trim()});
   if (user) return next(new ErrorResponse('Email already exists.', 400));
 
   const hashedPassword = await hashPassword(password);
 
   const newUser = await User.create({
     name,
-    email,
+    email: email.toLowerCase().trim(),
     password: hashedPassword
   });
 
@@ -49,7 +49,7 @@ exports.login = asyncHandler(async (req, res, next) => {
   if (!email || !password)
     return next(new ErrorResponse('Email and Password is required', 400));
 
-  const user = await User.findOne({ email });
+  const user = await User.findOne({ email: email.toLowerCase().trim() });
   if (!user) return next(new ErrorResponse('User not found', 404));
 
   const match = await comparePassword(password, user.password);
@@ -99,12 +99,12 @@ exports.forgotPassword = asyncHandler(async (req, res, next) => {
   const { email } = req.body;
   if (!email) return next(new ErrorResponse('Email is required', 400));
 
-  const user = await User.findOne({ email });
+  const user = await User.findOne({ email: email.toLowerCase().trim() });
   if (!user) return next(new ErrorResponse('User not found', 404));
 
   const passwordResetCode = nanoid(6).toUpperCase();
 
-  await User.findOneAndUpdate({ email }, { passwordResetCode });
+  await User.findOneAndUpdate({ email: email.toLowerCase().trim() }, { passwordResetCode });
 
   const message = await ejs.renderFile(
     path.join(__dirname, './../views/email-templates/password-reset.ejs'),
@@ -150,7 +150,7 @@ exports.resetPassword = asyncHandler(async (req, res, next) => {
       )
     );
 
-  const user = await User.findOne({ email });
+  const user = await User.findOne({ email: email.toLowerCase().trim() });
   if (!user) return next(new ErrorResponse('User not found', 404));
 
   if (code != user.passwordResetCode)
