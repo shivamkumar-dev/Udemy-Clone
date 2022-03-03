@@ -2,11 +2,11 @@ const jwt = require('jsonwebtoken');
 const { nanoid } = require('nanoid');
 const ejs = require('ejs');
 const path = require('path');
-const User = require('./../models/user');
-const asyncHandler = require('./../middlewares/async');
-const { hashPassword, comparePassword } = require('./../utils/auth');
-const sendEmail = require('./../utils/mailer');
-const ErrorResponse = require('./../utils/errorResponse');
+const User = require('../models/user');
+const asyncHandler = require('../middlewares/async');
+const { hashPassword, comparePassword } = require('../utils/auth');
+const sendEmail = require('../utils/mailer');
+const ErrorResponse = require('../utils/errorResponse');
 
 exports.register = asyncHandler(async (req, res, next) => {
   const { name, email, password } = req.body;
@@ -65,7 +65,7 @@ exports.login = asyncHandler(async (req, res, next) => {
   });
 
   user.password = undefined;
-  res.status(201).json({
+  res.status(200).json({
     status: true,
     message: 'Login successful',
     data: {

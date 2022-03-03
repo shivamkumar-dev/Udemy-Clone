@@ -5,7 +5,7 @@ const csrf = require('csurf');
 const mongoose = require('mongoose');
 const morgan = require('morgan');
 require('dotenv').config();
-const errorHandler = require('./middlewares/error');
+const errorHandler = require('./api/middlewares/error');
 
 const csrfProtection = csrf({ cookie: true });
 
@@ -13,7 +13,7 @@ const csrfProtection = csrf({ cookie: true });
 const app = express();
 
 // routes
-const routes = require('./routes');
+const routes = require('./api/routes');
 
 // DB
 mongoose
